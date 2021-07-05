@@ -90,7 +90,7 @@ class TestPack extends \PHPUnit\Framework\TestCase
   */
   public function testCount64Construct($loBytes, $hiBytes, $value, $description) {
     $count64 = ZipStreamer\Count64::construct($value);
-    $this->assertInstanceOf('ZipStreamer\Count64Base', $count64, $description . ' (instanceof)');
+    $this->assertInstanceOf('ZipStreamer\Lib\Count64Base', $count64, $description . ' (instanceof)');
     $this->assertEquals($loBytes, $count64->getLoBytes(), $description . " (loBytes)");
     $this->assertEquals($hiBytes, $count64->getHiBytes(), $description . " (hiBytes)");
   }
@@ -119,7 +119,7 @@ class TestPack extends \PHPUnit\Framework\TestCase
   public function testCount64Set($loBytes, $hiBytes, $value, $description) {
     $count64 = ZipStreamer\Count64::construct();
     $count64->set($value);
-    $this->assertInstanceOf('ZipStreamer\Count64Base', $count64, $description . ' (instanceof)');
+    $this->assertInstanceOf('ZipStreamer\Lib\Count64Base', $count64, $description . ' (instanceof)');
     $this->assertEquals($loBytes, $count64->getLoBytes(), $description . " (loBytes)");
     $this->assertEquals($hiBytes, $count64->getHiBytes(), $description . " (hiBytes)");
   }
