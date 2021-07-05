@@ -12,6 +12,14 @@ class UnpackTest extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
+        // skip this test if there is no working docker instance available
+        try {
+            exec('docker info');
+        } finally {
+            $this->markTestSkipped('No functional docker daemon available.');
+        }
+
+
         // create a zip file in tmp folder
         $this->tmpfname = tempnam("/tmp", "FOO");
         $outstream = fopen($this->tmpfname, 'w');
