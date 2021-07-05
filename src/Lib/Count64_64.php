@@ -29,7 +29,7 @@ class Count64_64 extends Count64Base {
   private $value;
 
   public function getHiBytes() {
-    return urShift($this->value, 32);
+    return \ZipStreamer\urShift($this->value, 32);
   }
 
   public function getLoBytes() {
