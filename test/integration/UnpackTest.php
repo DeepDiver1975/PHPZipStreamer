@@ -6,20 +6,21 @@
 
 class UnpackTest extends \PHPUnit\Framework\TestCase
 {
+    /** @var false|string */
     private $tmpfname;
 
-    function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
         // create a zip file in tmp folder
-        $this->tmpfname = tempnam("/tmp", "FOO");
-        $outstream = fopen($this->tmpfname, 'w');
+        $this->tmpfname = tempnam('/tmp', 'FOO');
+        $outstream = fopen($this->tmpfname, 'wb');
 
         $zip = new ZipStreamer\ZipStreamer((array(
             'outstream' => $outstream
         )));
-        $stream = fopen(__DIR__ . "/../../README.md", "r");
+        $stream = fopen(__DIR__ . '/../../README.md', 'rb');
         $zip->addFileFromStream($stream, 'README.test');
         fclose($stream);
         $zip->finalize();
@@ -28,22 +29,29 @@ class UnpackTest extends \PHPUnit\Framework\TestCase
         fclose($outstream);
     }
 
-    public function test7zip() {
+    public function test7zip(): void
+    {
         $output = [];
         $return_var = -1;
-        exec('docker run --rm -u "$(id -u):$(id -g)" -v /tmp:/data datawraith/p7zip t ' . escapeshellarg(basename($this->tmpfname)), $output, $return_var);
-        $fullOutput = implode("\n", $output);
-        $this->assertEquals($output[1], '7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21', $fullOutput);
-        $this->assertEquals(0, $return_var, $fullOutput);
-        $this->assertTrue(in_array('1 file, 943 bytes (1 KiB)', $output), $fullOutput);
+        exec('7z t ' . escapeshellarg($this->tmpfname), $output, $return_var);
+
+        $this->assertEquals(0, $return_var);
+        $this->assertEquals('1 file, 943 bytes (1 KiB)', $output[5]);
+        $this->assertEquals('Testing archive: ' . $this->tmpfname, $output[7]);
+        $this->assertEquals('Path = ' . $this->tmpfname, $output[9]);
+        $this->assertEquals('Type = zip', $output[10]);
+        $this->assertEquals('Physical Size = 943', $output[11]);
     }
 
-    public function testUnzip() {
+    public function testUnzip(): void
+    {
         $output = [];
         $return_var = -1;
         exec('unzip -t ' . escapeshellarg($this->tmpfname), $output, $return_var);
-        $fullOutput = implode("\n", $output);
-        $this->assertEquals(0, $return_var, $fullOutput);
-        $this->assertTrue(in_array('    testing: README.test              OK', $output), $fullOutput);
+
+        $this->assertEquals(0, $return_var);
+        $this->assertEquals('Archive:  ' . $this->tmpfname, $output[0]);
+        $this->assertEquals('    testing: README.test              OK', $output[1]);
+        $this->assertEquals('No errors detected in compressed data of ' . $this->tmpfname . '.', $output[2]);
     }
 }

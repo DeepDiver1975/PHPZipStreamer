@@ -36,13 +36,13 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
   const EXT_FILE_ATTR_FILE = 0x81a40000;
   protected $outstream;
 
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->outstream = fopen('php://memory', 'rw');
     zipRecord::setUnitTest($this);
   }
 
-  protected function tearDown() {
+  protected function tearDown(): void {
     fclose($this->outstream);
     parent::tearDown();
   }
