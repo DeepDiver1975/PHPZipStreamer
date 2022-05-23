@@ -175,7 +175,7 @@ class ZipStreamer {
   /**
    * Add a file to the archive at the specified location and file name.
    *
-   * @param string $stream      Stream to read data from
+   * @param resource $stream    Stream to read data from
    * @param string $filePath    Filepath and name to be used in the archive.
    * @param array $options      Optional, additional options
    *                            Valid options are:
