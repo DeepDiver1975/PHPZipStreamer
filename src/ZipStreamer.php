@@ -65,6 +65,8 @@ class ZipStreamer {
   private $isFinalized = false;
   /** @var bool only used for unit testing */
   public $turnOffOutputBuffering = true;
+  /** @var string indicates the default timezone to be used */
+  private static $defaultTimezone = 'UTC';
 
     /**
    * Constructor. Initializes ZipStreamer object for immediate usage.
@@ -560,7 +562,7 @@ class ZipStreamer {
   public static function getDosTime($timestamp = 0) {
     $timestamp = (int) $timestamp;
     $oldTZ = @date_default_timezone_get();
-    date_default_timezone_set('UTC');
+    date_default_timezone_set(static::$defaultTimezone) || date_default_timezone_set('UTC');
     $date = ($timestamp == 0 ? getdate() : getdate($timestamp));
     date_default_timezone_set($oldTZ);
     if ($date['year'] >= 1980) {
@@ -568,6 +570,13 @@ class ZipStreamer {
       | (($date['seconds'] >> 1) + ($date['minutes'] << 5) + ($date['hours'] << 11));
     }
     return 0x0000;
+  }
+
+  /**
+   * @param string $timezone
+   */
+  public static function setDefaultTimezone($timezone) {
+    static::$defaultTimezone = $timezone;
   }
 }
 
