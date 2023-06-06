@@ -91,9 +91,9 @@ class ZipStreamer {
     $options = array_merge($defaultOptions, $options);
 
     if ($options['outstream']) {
-      $this->outstream = $options['outstream'];
+      $this->outStream = $options['outstream'];
     } else {
-      $this->outstream = fopen('php://output', 'w');
+      $this->outStream = fopen('php://output', 'w');
     }
     $this->zip64 = $options['zip64'];
     $this->compress = $options['compress'];
@@ -322,11 +322,11 @@ class ZipStreamer {
   }
 
   private function write($data) {
-    return fwrite($this->outstream, $data);
+    return fwrite($this->outStream, $data);
   }
 
   private function flush() {
-    return fflush($this->outstream);
+    return fflush($this->outStream);
   }
 
   private function beginFile($filePath, $isDir, $fileComment, $timestamp, $gpFlags, $gzMethod,
