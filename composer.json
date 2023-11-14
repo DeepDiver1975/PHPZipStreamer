@@ -7,8 +7,7 @@
     "stream"
   ],
   "homepage": "https://github.com/DeepDiver1975/PHPZipStreamer",
-  "license": "GPL-3.0+",
-  "version": "2.0.0",
+  "license": "GPL-3.0-or-later",
   "authors": [
     {
       "name": "Nicolai Ehemann",
