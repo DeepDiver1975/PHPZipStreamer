@@ -1,10 +1,16 @@
 <?php
+
+namespace Tests;
+
+use PHPUnit\Framework\TestCase;
+use Tests;
+use ZipStreamer\ZipStreamer;
+
 /**
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  */
-
-class UnpackTest extends \PHPUnit\Framework\TestCase
+class UnpackTest extends TestCase
 {
     /** @var false|string */
     private $tmpfname;
@@ -13,14 +19,17 @@ class UnpackTest extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
+        $this->skipMissingCommand('7z');
+        $this->skipMissingCommand('unzip');
+
         // create a zip file in tmp folder
         $this->tmpfname = tempnam('/tmp', 'FOO');
         $outstream = fopen($this->tmpfname, 'wb');
 
-        $zip = new ZipStreamer\ZipStreamer((array(
+        $zip = new ZipStreamer((array(
             'outstream' => $outstream
         )));
-        $stream = fopen(__DIR__ . '/../../README.md', 'rb');
+        $stream = fopen(__DIR__ . '/../README.md', 'rb');
         $zip->addFileFromStream($stream, 'README.test');
         fclose($stream);
         $zip->finalize();
@@ -53,5 +62,12 @@ class UnpackTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('Archive:  ' . $this->tmpfname, $output[0]);
         $this->assertEquals('    testing: README.test              OK', $output[1]);
         $this->assertEquals('No errors detected in compressed data of ' . $this->tmpfname . '.', $output[2]);
+    }
+
+    private function skipMissingCommand($command)
+    {
+        if (shell_exec("which $command") === false) {
+            $this->markTestSkipped('command <$command> is missing');
+        }
     }
 }
