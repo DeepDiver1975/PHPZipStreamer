@@ -7,8 +7,6 @@
      bootstrap="bootstrap.php"
 >
   <testsuite name="ZipStreamer">
-    <file>ZipStreamerTest.php</file>
-    <directory>lib</directory>
-    <directory>integration</directory>
+    <directory>.</directory>
   </testsuite>
 </phpunit>

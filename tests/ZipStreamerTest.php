@@ -6,7 +6,14 @@
  * This file is licensed under the GNU GPL version 3 or later.
  * See COPYING for details.
  */
-namespace ZipStreamer;
+namespace Tests;
+
+use ZipStreamer\COMPR;
+use ZipStreamer\Count64;
+use ZipStreamer\GPFLAGS;
+use ZipStreamer\ZipStreamer;
+use function ZipStreamer\pack16le;
+use function ZipStreamer\pack32le;
 
 require_once  __DIR__ . "/ZipComponents.php";
 
@@ -64,17 +71,17 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
   }
 
   protected function assertOutputEqualsFile($filename) {
-    $this->assertEquals(file_get_contents($filename), $this->getOutput());
+    $this->assertStringEqualsFile($filename, $this->getOutput());
   }
 
   protected function assertContainsOneMatch($pattern, $input) {
     $results = preg_grep($pattern, $input);
-    $this->assertEquals(1, sizeof($results));
+    $this->assertCount(1, $results);
   }
 
   protected function assertOutputZipfileOK($files, $options) {
-    if (0 < sizeof($files)) { // php5.3 does not combine empty arrays
-      $files = array_combine(array_map(function ($element) {
+    if (0 < count($files)) { // php5.3 does not combine empty arrays
+      $files = array_combine(array_map(static function ($element) {
         return $element->filename;
       }, $files), $files);
     }
@@ -87,8 +94,8 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
       $eocdrec->assertValues(array(
           "numberDisk" => 0xffff,
           "numberDiskStartCD" => 0xffff,
-          "numberEntriesDisk" => sizeof($files),
-          "numberEntriesCD" => sizeof($files),
+          "numberEntriesDisk" => count($files),
+          "numberEntriesCD" => count($files),
           "size" => 0xffffffff,
           "offsetStart" => 0xffffffff,
           "lengthComment" => 0,
@@ -110,11 +117,11 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
       $z64eocdrec->assertValues(array(
           "size" => Count64::construct(44),
           "madeByVersion" => pack16le(self::ATTR_MADE_BY_VERSION),
-          "versionToExtract" => pack16le($this->getVersionToExtract($options['zip64'], False)),
+          "versionToExtract" => pack16le(self::getVersionToExtract($options['zip64'], False)),
           "numberDisk" => 0,
           "numberDiskStartCDR" => 0,
-          "numberEntriesDisk" => Count64::construct(sizeof($files)),
-          "numberEntriesCD" => Count64::construct(sizeof($files))
+          "numberEntriesDisk" => Count64::construct(count($files)),
+          "numberEntriesCD" => Count64::construct(count($files))
       ));
       $sizeCD = $z64eocdrec->sizeCD->getLoBytes();
       $offsetCD = $z64eocdrec->offsetStart->getLoBytes();
@@ -123,8 +130,8 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
       $eocdrec->assertValues(array(
           "numberDisk" => 0,
           "numberDiskStartCD" => 0,
-          "numberEntriesDisk" => sizeof($files),
-          "numberEntriesCD" => sizeof($files),
+          "numberEntriesDisk" => count($files),
+          "numberEntriesCD" => count($files),
           "lengthComment" => 0,
           "comment" => ''
       ));
@@ -146,7 +153,7 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
       $this->assertArrayHasKey($filename, $files, "CDH entry has valid name");
       $cdhead->assertValues(array(
           "madeByVersion" => pack16le(self::ATTR_MADE_BY_VERSION),
-          "versionToExtract" => pack16le($this->getVersionToExtract($options['zip64'], File::DIR == $files[$filename]->type)),
+          "versionToExtract" => pack16le(self::getVersionToExtract($options['zip64'], File::DIR == $files[$filename]->type)),
           "gpFlags" => (File::FILE == $files[$filename]->type ? pack16le(GPFLAGS::ADD) : pack16le(GPFLAGS::NONE)),
           "gzMethod" => (File::FILE == $files[$filename]->type ? pack16le($options['compress']) : pack16le(COMPR::STORE)),
           "dosTime" => pack32le(ZipStreamer::getDosTime($files[$filename]->date)),
@@ -176,9 +183,9 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
         ));
       }
     }
-    if (0 < sizeof($files)) {
+    if (0 < count($files)) {
       $this->assertEquals($cdhead->end + 1, $beginFollowingRecord, "CDH directly before following record");
-      $this->assertEquals(sizeof($files), sizeof($cdheaders), "CDH has correct number of entries");
+      $this->assertSameSize($files, $cdheaders, "CDH has correct number of entries");
       $this->assertEquals($sizeCD, $beginFollowingRecord - $offsetCD, "CDH has correct size");
     } else {
       $this->assertNull($cdhead);
@@ -222,7 +229,7 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
         ));
       }
       $file->lfh->assertValues(array(
-          "versionToExtract" => pack16le($this->getVersionToExtract($options['zip64'], File::DIR == $files[$filename]->type)),
+          "versionToExtract" => pack16le(self::getVersionToExtract($options['zip64'], File::DIR == $files[$filename]->type)),
           "gpFlags" => (File::FILE == $files[$filename]->type ? GPFLAGS::ADD : GPFLAGS::NONE),
           "gzMethod" => (File::FILE == $files[$filename]->type ? $options['compress'] : COMPR::STORE),
           "dosTime" => pack32le(ZipStreamer::getDosTime($files[$filename]->date)),
@@ -234,7 +241,7 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
       $endLastFile = $file->end;
       $first = False;
     }
-    if (0 < sizeof($files)) {
+    if (0 < count($files)) {
       $this->assertEquals($offsetCD, $endLastFile + 1, "last file directly before CDH");
     } else {
       $this->assertEquals(0, $beginFollowingRecord, "empty zip file, CD records at beginning of file");
@@ -371,11 +378,11 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
               'level' => $level[0]
             );
             $description = $fileSet[1] . ' (options = array(zip64=' . $zip64[1] . ', compress=' . $compress[1] . ', level=' . $level[1] . '))';
-            array_push($data, array(
-              $options,
-              $fileSet[0],
-              $description
-            ));
+            $data[] = array(
+                $options,
+                $fileSet[0],
+                $description
+            );
           }
         }
       }
@@ -415,8 +422,8 @@ class TestZipStreamer extends \PHPUnit\Framework\TestCase {
     $stream = fopen('php://memory', 'r+');
     $zip->addFileFromStream($stream, "test.bin");
     fclose($stream);
-    $zip->finalize();
+    $ret = $zip->finalize();
+    self::assertTrue($ret);
   }
-}
 
-?>
+}

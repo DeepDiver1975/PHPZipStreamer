@@ -35,16 +35,13 @@
       "role": "Contributor"
     }
   ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/DeepDiver1975/PHPZipStreamer"
-    }
-  ],
   "require": {
-    "php": ">=7.1"
+    "php": ">=7.1",
+    "ext-mbstring": "*"
   },
   "require-dev": {
+    "ext-xdebug": "*",
+    "ext-zlib": "*",
     "phpunit/phpunit": "^7 || ^8"
   },
   "suggest": {
@@ -53,6 +50,11 @@
   "autoload": {
     "psr-4": {
       "ZipStreamer\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
     }
   }
 }
