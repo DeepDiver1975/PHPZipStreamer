@@ -6,7 +6,17 @@
  * This file is licensed under the GNU GPL version 3 or later.
  * See COPYING for details.
  */
-namespace ZipStreamer;
+namespace Tests;
+
+use PHPUnit\Framework\Assert;
+use ZipStreamer\COMPR;
+use ZipStreamer\Count64;
+use ZipStreamer\GPFLAGS;
+use function ZipStreamer\pack16le;
+use function ZipStreamer\pack32le;
+use function ZipStreamer\unpack16le;
+use function ZipStreamer\unpack32le;
+use function ZipStreamer\unpack64le;
 
 /**
  * @codeCoverageIgnore
@@ -63,7 +73,7 @@ abstract class zipRecord {
     try {
       $eocdrec->readFromString($str, $pos, $size);
     } catch (Exception $e) {
-      $this->fail("error parsing end of central directory record");
+      Assert::fail("error parsing end of central directory record");
     }
 
     return $eocdrec;
@@ -468,7 +478,7 @@ class FileEntry extends zipRecord {
       }
     }
     if (GPFLAGS::ADD & $this->lfh->gpFlags) {
-      if (is_null($this->lfh->z64Ext)) {
+      if ($this->lfh->z64Ext === null) {
         $ddLength = 16;
       } else {
         $ddLength = 24;
@@ -611,4 +621,3 @@ class DataDescriptor extends zipRecord {
     $this->end = $pos - 1;
   }
 }
-?>
