@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
+        php-versions: [ '8.5' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           # Use composer.json for key, if composer.lock is not committed.
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3' ]
+        php-versions: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
         coverage: [ 'xdebug' ] # ZipStreamerTest depends on xdebug_get_headers => if coverage none/pcov then xdebug is disabled.
     steps:
       - name: Checkout
@@ -71,7 +71,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           # Use composer.json for key, if composer.lock is not committed.
