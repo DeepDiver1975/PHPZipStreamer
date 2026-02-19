@@ -47,9 +47,9 @@ class UnpackTest extends TestCase
         $this->assertEquals(0, $return_var);
         $this->assertEquals('1 file, 943 bytes (1 KiB)', $output[5]);
         $this->assertEquals('Testing archive: ' . $this->tmpfname, $output[7]);
-        $this->assertEquals('Path = ' . $this->tmpfname, $output[9]);
-        $this->assertEquals('Type = zip', $output[10]);
-        $this->assertEquals('Physical Size = 943', $output[11]);
+        $this->assertEquals('Path = ' . $this->tmpfname, $output[13]);
+        $this->assertEquals('Type = zip', $output[14]);
+        $this->assertEquals('Physical Size = 943', $output[17]);
     }
 
     public function testUnzip(): void
