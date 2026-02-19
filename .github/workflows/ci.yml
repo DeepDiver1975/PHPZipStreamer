@@ -48,5 +48,5 @@ jobs:
       #        run: vendor/bin/phpunit --verbose --configuration tests/phpunit.xml --coverage-clover=coverage.xml
 
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v5
         if: matrix.coverage != 'none'
