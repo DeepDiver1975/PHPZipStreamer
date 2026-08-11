@@ -211,6 +211,10 @@ class ZipStreamer {
 
     list($gpFlags, $lfhLength) = $this->beginFile($filePath, False, $options['comment'], $options['timestamp'], $gpFlags, $options['compress']);
     list($dataLength, $gzLength, $dataCRC32) = $this->streamFileData($stream, $options['compress'], $options['level']);
+    if($dataLength === 0) {
+      // Handle invalid result
+      return false;
+    }
 
     $ddLength = $this->addDataDescriptor($dataLength, $gzLength, $dataCRC32);
 
@@ -366,6 +370,12 @@ class ZipStreamer {
       $this->write($data);
 
       $this->flush();
+
+      // Before potentially reading the next chunk, check if user aborted the connection.
+      // Ignored (not aborted), when ignore_user_abort is set.
+      if (connection_aborted() === 1 && ignore_user_abort() === 0) {
+        return array(0, 0, 0);
+      }
     }
     if (COMPR::DEFLATE === $compress) {
       $data = $compStream->finish();
